@@ -19,17 +19,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Change this if you use a different version
+          node-version: '18'  # Change this if needed
 
       - name: Install dependencies
-        run: npm install
+        run: cd signup && npm install
 
       - name: Lint (optional)
-        run: |
-          echo "Skipping lint. Add ESLint or similar if needed."
+        run: cd signup && echo "No linter configured yet"
 
       - name: Docker Build
-        run: docker build -t my-node-app .
+        run: docker build -t my-node-app ./signup
 
       - name: Docker Compose Up (optional)
-        run: docker-compose up -d
+        run: docker-compose -f signup/docker-compose.yml up -d
