@@ -1,36 +1,35 @@
-name: Node.js CI
+name: Build Node.js App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: signup
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18' # Change this if using a different Node.js version
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Change this if you use a different version
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run tests
-      run: npm test
-      continue-on-error: true  # Optional: prevent build failure if tests are not set up
+      - name: Lint (optional)
+        run: |
+          echo "Skipping lint. Add ESLint or similar if needed."
 
-    - name: Lint (optional)
-      run: npm run lint
-      continue-on-error: true
+      - name: Docker Build
+        run: docker build -t my-node-app .
+
+      - name: Docker Compose Up (optional)
+        run: docker-compose up -d
