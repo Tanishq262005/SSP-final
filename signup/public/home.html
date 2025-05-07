@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Sharing & Chat Platform</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .broadcast-box, .form-box {
+      background-color: #1c1c1c;
+      border-radius: 10px;
+      padding: 20px;
+      flex: 1;
+    }
+
+    .broadcast-box {
+      flex: 1.5;
+    }
+
+    .broadcast {
+      background-color:rgb(35, 32, 32);
+      padding: 15px;
+      height: 90%;
+      overflow-y: auto;
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .form-box h2, .form-box h3 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .form-box input[type="text"],
+    .form-box input[type="file"] {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: rgb(0, 0, 0);
+      color: #e8e8e8;
+      font-size: 14px;
+      transition: 0.2s ease-in-out;
+    }
+
+    .form-box input[type="text"]:hover,
+    .form-box input[type="file"]:hover {
+      outline: none;
+      background-color: #373232;
+      box-shadow: 0 0 5px #7a788d;
+    }
+
+    .form-box button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #302f3d;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .form-box button:hover {
+      background-color: #473be6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Broadcast area -->
+    <div class="broadcast-box">
+      <h2>Broadcast</h2>
+      <div id="broadcast" class="broadcast" aria-placeholder="Msg will be shown here.">
+        <!-- Chat messages will appear here -->
+      </div>
+    </div>
+
+    <!-- Form and input area -->
+    <div class="form-box">
+      <h2>Student Info</h2>
+      <input type="text" id="name" placeholder="Name" />
+      <input type="text" id="usn" placeholder="USN" />
+      <input type="text" id="section" placeholder="Section" />
+      <input type="file" id="file" />
+
+      <h3>Student Chat</h3>
+      <input type="text" id="studentMessage" placeholder="Enter Student Message..." />
+      <button onclick="sendMessage('A')">Send</button>
+
+      <h2>Mentor Info</h2>
+      <input type="text" id="mentorName" placeholder="Mentor Name" />
+
+      <h3>Mentor Chat</h3>
+      <input type="text" id="mentor" placeholder="Enter Mentor Message..." />
+      <button onclick="sendMessage('B')">Send</button>
+    </div>
+  </div>
+
+  <!-- Socket.io script should be loaded before this -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function sendMessage(userType) {
+      let name, usn = "", section = "", message;
+
+      if (userType === 'A') {
+        name = document.getElementById('name').value.trim();
+        usn = document.getElementById('usn').value.trim();
+        section = document.getElementById('section').value.trim();
+        message = document.getElementById('studentMessage').value.trim();
+      } else {
+        name = document.getElementById('mentorName').value.trim();
+        message = document.getElementById('mentor').value.trim();
+      }
+
+      if (!message) return;
+
+      const formattedMessage = userType === 'A'
+        ? `[${userType}] ${name} (${usn}, ${section}): ${message}`
+        : `[${userType}] ${name}: ${message}`;
+
+      socket.emit('send_message', {
+        username: name,
+        message: formattedMessage,
+        timestamp: new Date()
+      });
+
+      if (userType === 'A') {
+        document.getElementById('studentMessage').value = '';
+      } else {
+        document.getElementById('mentor').value = '';
+      }
+    }
+
+    socket.on('receive_message', (data) => {
+      const broadcast = document.getElementById('broadcast');
+      const time = new Date(data.timestamp).toLocaleTimeString();
+      broadcast.innerHTML += `<div>${time} - ${data.message}</div>`;
+      broadcast.scrollTop = broadcast.scrollHeight;
+    });
+  </script>
+</body>
+</html>
