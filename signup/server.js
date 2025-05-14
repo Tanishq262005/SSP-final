@@ -19,7 +19,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // === MongoDB Connection ===
-// === MongoDB Connection ===
 if (require.main === module) {
   mongoose.connect('mongodb://localhost:27017/signup')
     .then(() => {
@@ -33,9 +32,6 @@ if (require.main === module) {
       console.error('❌ MongoDB connection error:', err);
     });
 }
-
-module.exports = app;
-
 
 // === Static Files ===
 app.use(express.static(path.join(__dirname, 'public')));
