@@ -19,13 +19,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // === MongoDB Connection ===
-mongoose.connect('mongodb://localhost:27017/signup', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('✅ MongoDB connected');
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err);
-  });
+// === MongoDB Connection ===
+if (require.main === module) {
+  mongoose.connect('mongodb://localhost:27017/signup')
+    .then(() => {
+      console.log('✅ MongoDB connected');
+      const PORT = 3000;
+      server.listen(PORT, () => {
+        console.log(`🚀 Server running at http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('❌ MongoDB connection error:', err);
+    });
+}
+
+module.exports = app;
+
 
 // === Static Files ===
 app.use(express.static(path.join(__dirname, 'public')));
@@ -111,9 +121,14 @@ io.on('connection', (socket) => {
     console.log('🔴 User disconnected');
   });
 });
+module.exports = app;
 
-// === Start Server ===
-const PORT = 3000;
-server.listen(PORT, () => { // 👈 use server.listen instead of app.listen
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const PORT = 3000;
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
+
+
+
